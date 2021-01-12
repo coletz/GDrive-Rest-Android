@@ -414,16 +414,29 @@ public class DriveServiceHelper {
         return Tasks.call(mExecutor, new Callable<GoogleDriveFileHolder>() {
             @Override
             public GoogleDriveFileHolder call() throws Exception {
-
                 File metadata = mDriveService.files().get(fileId).execute();
 
                 FileContent fileContent = new FileContent(metadata.getMimeType(), localFile);
 
-                mDriveService.files().update(fileId, metadata, fileContent).execute();
-                File fileMeta = mDriveService.files().create(metadata, fileContent).execute();
+                File updatedMeta = mDriveService.files().update(fileId, null, fileContent).execute();
                 GoogleDriveFileHolder googleDriveFileHolder = new GoogleDriveFileHolder();
-                googleDriveFileHolder.setId(fileMeta.getId());
-                googleDriveFileHolder.setName(fileMeta.getName());
+                googleDriveFileHolder.setId(updatedMeta.getId());
+                googleDriveFileHolder.setName(updatedMeta.getName());
+                return googleDriveFileHolder;
+            }
+        });
+    }
+
+    public Task<GoogleDriveFileHolder> updateFile(final String fileId, final String mimeType, final java.io.File localFile) {
+        return Tasks.call(mExecutor, new Callable<GoogleDriveFileHolder>() {
+            @Override
+            public GoogleDriveFileHolder call() throws Exception {
+                FileContent fileContent = new FileContent(mimeType, localFile);
+
+                File updatedMeta = mDriveService.files().update(fileId, null, fileContent).execute();
+                GoogleDriveFileHolder googleDriveFileHolder = new GoogleDriveFileHolder();
+                googleDriveFileHolder.setId(updatedMeta.getId());
+                googleDriveFileHolder.setName(updatedMeta.getName());
                 return googleDriveFileHolder;
             }
         });
